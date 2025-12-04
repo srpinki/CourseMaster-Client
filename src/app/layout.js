@@ -1,20 +1,25 @@
+"use client";
+
 import "./globals.css";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
-
-
-export const metadata = {
-  title: "CourseMaster",
-  description: "E-learning platform",
-};
+import { Provider } from "react-redux";
+import store from "./redux/store";
+import { usePathname } from "next/navigation";
 
 export default function RootLayout({ children }) {
+  const pathname = usePathname();
+  const isDashboard = pathname?.startsWith("/dashboard");
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <Navbar />
+        <Provider store={store}>
+          {!isDashboard && <Navbar />}
+
           <main>{children}</main>
-        <Footer />
+
+          {!isDashboard && <Footer />}
+        </Provider>
       </body>
     </html>
   );

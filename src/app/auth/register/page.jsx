@@ -1,6 +1,11 @@
 "use client";
+
+import api from "@/app/lib/axios";
 import { useState } from "react";
-import api from "../../../../lib/axios";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "@/app/redux/slice/authSlice";
+import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
@@ -10,28 +15,45 @@ export default function RegisterPage() {
     role: "student",
     registrationKey: "",
   });
+  const dispatch = useDispatch();
+  const router = useRouter();
 
   const handleRegister = async (e) => {
     e.preventDefault();
-
     try {
       const res = await api.post("/api/auth/register", form);
-      console.log("Success:", res.data);
-      alert("User Registered!");
+      const { user, accessToken } = res.data;
+
+      // Save Redux state
+      dispatch(setCredentials({ user, accessToken }));
+      localStorage.setItem("token", accessToken);
+
+      Swal.fire({
+        icon: "success",
+        title: "Registration Successful",
+        text: `Welcome ${user.email}!`,
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      setTimeout(() => {
+        router.push(user.role === "admin" ? "/dashboard/admin" : "/dashboard/student");
+      }, 1500);
     } catch (error) {
-      console.log("ERROR:", error.response?.data);
-      alert(error.response?.data?.message || "Registration failed");
+      Swal.fire({
+        icon: "error",
+        title: "Registration Failed",
+        text: error.response?.data?.message || "Try again",
+      });
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-200 to-blue-400">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-300 to-blue-200">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
-        <h2 className="text-3xl font-bold text-center text-gray-800">
-          Welcome to CourseMaster
-        </h2>
+        <h2 className="text-3xl font-bold text-center text-gray-800">Welcome to CourseMaster</h2>
         <p className="mb-8 text-center text-gray-600">Start your learning journey today</p>
-    
+
         <form onSubmit={handleRegister} className="space-y-4">
           <input
             placeholder="Full Name"
@@ -39,7 +61,6 @@ export default function RegisterPage() {
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition text-gray-800"
             onChange={(e) => setForm({ ...form, name: e.target.value })}
           />
-
           <input
             placeholder="Email"
             type="email"
@@ -47,7 +68,6 @@ export default function RegisterPage() {
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition text-gray-800"
             onChange={(e) => setForm({ ...form, email: e.target.value })}
           />
-
           <input
             placeholder="Password"
             type="password"
@@ -56,7 +76,6 @@ export default function RegisterPage() {
             onChange={(e) => setForm({ ...form, password: e.target.value })}
           />
 
-          {/* Role Selection */}
           <select
             value={form.role}
             onChange={(e) => setForm({ ...form, role: e.target.value })}
@@ -66,14 +85,11 @@ export default function RegisterPage() {
             <option value="admin">Admin</option>
           </select>
 
-          {/* Optional Admin Key */}
           {form.role === "admin" && (
             <input
               placeholder="Admin Key"
               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition text-gray-800"
-              onChange={(e) =>
-                setForm({ ...form, registrationKey: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, registrationKey: e.target.value })}
             />
           )}
 
@@ -84,6 +100,7 @@ export default function RegisterPage() {
             Register
           </button>
         </form>
+
         <p className="text-center text-gray-500 mt-4">
           Already have an account?{" "}
           <a href="/auth/login" className="text-blue-500 hover:underline">
