@@ -1,13 +1,29 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-// Initialize from localStorage
-const userFromStorage = typeof window !== "undefined" && localStorage.getItem("user")
-  ? JSON.parse(localStorage.getItem("user"))
-  : null;
+// SAFE localStorage reader (SSR compatible)
+let userFromStorage = null;
+let tokenFromStorage = null;
 
-const tokenFromStorage = typeof window !== "undefined" && localStorage.getItem("token")
-  ? localStorage.getItem("token")
-  : null;
+if (typeof window !== "undefined") {
+  try {
+    const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token");
+
+    userFromStorage =
+      storedUser && storedUser !== "undefined" && storedUser !== "null"
+        ? JSON.parse(storedUser)
+        : null;
+
+    tokenFromStorage =
+      storedToken && storedToken !== "undefined" && storedToken !== "null"
+        ? storedToken
+        : null;
+  } catch (error) {
+    console.error("LocalStorage parse error:", error);
+    userFromStorage = null;
+    tokenFromStorage = null;
+  }
+}
 
 const initialState = {
   user: userFromStorage,
@@ -19,20 +35,33 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setCredentials: (state, action) => {
-      state.user = action.payload.user;
-      state.accessToken = action.payload.accessToken;
+      const { user, accessToken } = action.payload;
 
-      // Save to localStorage
-      localStorage.setItem("user", JSON.stringify(action.payload.user));
-      localStorage.setItem("token", action.payload.accessToken);
+      state.user = user || null;
+      state.accessToken = accessToken || null;
+
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("user", user ? JSON.stringify(user) : "null");
+          localStorage.setItem("token", accessToken || "");
+        } catch (error) {
+          console.error("Failed to save to localStorage:", error);
+        }
+      }
     },
+
     logout: (state) => {
       state.user = null;
       state.accessToken = null;
 
-      // Remove from localStorage
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.removeItem("user");
+          localStorage.removeItem("token");
+        } catch (error) {
+          console.error("Failed to clear localStorage:", error);
+        }
+      }
     },
   },
 });
