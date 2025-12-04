@@ -3,7 +3,7 @@ export default function CourseFilter({ categories, selectedCategory, onSelectCat
     <select
       value={selectedCategory}
       onChange={(e) => onSelectCategory(e.target.value)}
-      className="border px-3 py-2 rounded"
+      className="border px-3 py-2 rounded text-gray-700"
     >
       <option value="">All Categories</option>
       {categories.map((cat) => (

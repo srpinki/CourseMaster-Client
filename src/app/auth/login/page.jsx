@@ -16,7 +16,7 @@ export default function LoginPage() {
     e.preventDefault();
 
     try {
-      const res = await api.post("/api/auth/login", form);
+      const res = await api.post("/auth/login", form);
       const { accessToken, user } = res.data;
 
       // Save to Redux

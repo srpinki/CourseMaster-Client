@@ -21,7 +21,7 @@ export default function RegisterPage() {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post("/api/auth/register", form);
+      const res = await api.post("/auth/register", form);
       const { user, accessToken } = res.data;
 
       // Save Redux state
