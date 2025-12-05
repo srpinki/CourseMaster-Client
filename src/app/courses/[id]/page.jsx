@@ -34,25 +34,39 @@ const handleEnroll = async () => {
     return;
   }
 
+  if (!course || !course._id) {
+    alert("Course information is missing!");
+    return;
+  }
+
   try {
+    const payload = {
+      courseId: course._id,
+      userId: user.id,
+      courseTitle: course.title,
+      price: course.price,
+      email: user.email,
+    };
+
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checkout/create-session`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        courseId: course._id,
-        userId: user._id,
-        courseTitle: course.title,
-        price: course.price,
-        email: user.email, // optional
-      }),
+      body: JSON.stringify(payload),
     });
 
     const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Checkout error:", data, "Status:", res.status);
+      alert(data.error || "Payment failed, try again.");
+      return;
+    }
+
     if (data.url) {
-      window.location.href = data.url; // redirect to Stripe Checkout
+      window.location.href = data.url;
     }
   } catch (err) {
-    console.error(err);
+    console.error("Checkout error:", err);
     alert("Payment failed, try again.");
   }
 };
