@@ -30,7 +30,7 @@ export default function CourseDetailsPage() {
 
 const handleEnroll = async () => {
   if (!user) {
-    router.push("/login");
+    router.push("/auth/login");
     return;
   }
 
