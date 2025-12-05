@@ -1,4 +1,5 @@
-"use client";
+"use client"; // IMPORTANT: ensures this page is client-only
+
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -9,14 +10,18 @@ export default function SuccessPage() {
   useEffect(() => {
     if (sessionId) {
       console.log("Stripe session ID:", sessionId);
-      // Optionally fetch session details from backend
+      // Optionally, fetch session details from your backend here
     }
   }, [sessionId]);
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-green-50">
-      <h1 className="text-3xl font-bold text-green-700 mb-4">Payment Successful 🎉</h1>
-      <p className="text-gray-700">You are now enrolled in the course.</p>
+      <h1 className="text-4xl font-bold text-green-700 mb-4">
+        Payment Successful ✅
+      </h1>
+      <p className="text-lg text-gray-700">
+        Thank you for your purchase! You are now enrolled in the course.
+      </p>
     </div>
   );
 }
