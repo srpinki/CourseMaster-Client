@@ -79,7 +79,7 @@ export default function CoursesPage() {
             Loading courses...
           </div>
         ) : list?.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {list.map((course) => (
               <CourseCard key={course._id} course={course} />
             ))}

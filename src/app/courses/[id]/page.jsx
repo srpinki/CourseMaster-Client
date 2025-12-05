@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCourseById } from "@/app/redux/slice/courseSlice";
+import Image from "next/image";
+import { FiClock, FiUser, FiStar } from "react-icons/fi";
 
 export default function CourseDetailsPage() {
   const { id } = useParams();
@@ -11,7 +13,7 @@ export default function CourseDetailsPage() {
   const dispatch = useDispatch();
 
   const { course, status } = useSelector((state) => state.courses);
-  const { user } = useSelector((state) => state.auth); // Logged-in check
+  const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (id) dispatch(fetchCourseById(id));
@@ -26,70 +28,152 @@ export default function CourseDetailsPage() {
 
   if (!course) return <p className="text-gray-500 p-6">Course not found.</p>;
 
-  // Enroll Button Logic
-  const handleEnroll = () => {
-    if (!user) {
-      router.push("/login");
-      return;
+const handleEnroll = async () => {
+  if (!user) {
+    router.push("/login");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/checkout/create-session`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        courseId: course._id,
+        userId: user._id,
+        courseTitle: course.title,
+        price: course.price,
+        email: user.email, // optional
+      }),
+    });
+
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url; // redirect to Stripe Checkout
     }
-    router.push(`/checkout/${course._id}`);
-  };
+  } catch (err) {
+    console.error(err);
+    alert("Payment failed, try again.");
+  }
+};
+
+
 
   return (
-    <div className="bg-blue-50 min-h-screen py-10 px-4">
-      <div className="max-w-5xl mx-auto">
-        
-        {/* Main Card */}
-        <div className="bg-white shadow-xl rounded-2xl p-8 border border-blue-100">
-          
-          {/* Title */}
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+    <div className="bg-gray-50 min-h-screen pb-20">
+
+      {/* Top Hero Section */}
+      <div className="relative w-full h-[320px] md:h-[420px]">
+        <Image
+          src={course.thumbnail}
+          alt={course.title}
+          fill
+          className="object-cover brightness-50"
+          unoptimized
+        />
+
+        <div className="absolute inset-0 flex flex-col justify-center px-6 md:px-20 text-white">
+          <h1 className="text-3xl md:text-5xl font-bold mb-3 drop-shadow-lg">
             {course.title}
           </h1>
 
-          {/* Instructor + Price */}
-          <div className="flex flex-wrap items-center gap-4 mb-6">
-            <span className="px-4 py-2 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
-              👨‍🏫 Instructor: {course.instructor}
-            </span>
-
-            <span className="px-4 py-2 bg-green-100 text-green-700 text-sm font-medium rounded-full">
-              💰 Price: ${course.price}
-            </span>
-          </div>
-
-          {/* Description */}
-          <p className="text-gray-700 leading-relaxed mb-6">
+          <p className="text-lg md:text-xl max-w-2xl opacity-90">
             {course.description}
           </p>
 
-          {/* Syllabus Section */}
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-            📘 Course Syllabus
-          </h2>
+          <div className="flex items-center gap-4 mt-4 text-sm md:text-base">
+            <span className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full backdrop-blur">
+              <FiUser /> {course.instructor}
+            </span>
+            <span className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full backdrop-blur">
+              <FiClock /> {course.duration || "6h 30m"}
+            </span>
+            <span className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full backdrop-blur">
+              <FiStar /> {course.rating || "4.8"}
+            </span>
+          </div>
+        </div>
+      </div>
 
-          <div className="space-y-3">
-            {course.syllabus.map((item, index) => (
-              <div
-                key={index}
-                className="bg-blue-50 border border-blue-200 p-4 rounded-xl text-gray-700 shadow-sm"
-              >
-                <span className="font-medium mr-2">{index + 1}.</span>
-                {item}
-              </div>
-            ))}
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto px-4 mt-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+        {/* Left Column */}
+        <div className="lg:col-span-2 space-y-12">
+
+          {/* Video Player */}
+          <div className="bg-white p-5 rounded-xl shadow-md border">
+            <h2 className="text-2xl font-semibold mb-4">🎥 Course Preview</h2>
+
+            {/* Detect YouTube/Vimeo embed URLs */}
+            {course.videoUrl?.includes("youtube") ||
+            course.videoUrl?.includes("vimeo") ? (
+              <iframe
+                src={course.videoUrl}
+                className="w-full h-64 md:h-96 rounded-xl"
+                allowFullScreen
+              ></iframe>
+            ) : (
+              <video
+                src={course.videoUrl}
+                controls
+                className="w-full h-64 md:h-96 rounded-xl"
+              />
+            )}
           </div>
 
-          {/* Enroll Button */}
-          <div className="mt-8">
+          {/* Syllabus */}
+          <div className="bg-white p-6 rounded-xl shadow-md border">
+            <h2 className="text-2xl font-semibold mb-4">📘 Course Syllabus</h2>
+
+            <div className="space-y-4">
+              {course.syllabus?.map((item, index) => (
+                <div
+                  key={index}
+                  className="p-4 bg-gray-100 rounded-xl border flex items-center gap-3"
+                >
+                  <div className="w-10 h-10 bg-blue-600 text-white flex items-center justify-center rounded-full font-semibold">
+                    {index + 1}
+                  </div>
+                  <p className="font-medium text-gray-700">{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Sidebar */}
+        <div className="lg:col-span-1">
+
+          <div className="bg-white shadow-md p-6 rounded-2xl border sticky top-10">
+
+            <p className="text-3xl font-bold text-blue-600 mb-4">
+              ${course.price}
+            </p>
+
             <button
               onClick={handleEnroll}
-              className="w-full sm:w-auto px-8 py-3 bg-blue-600 text-white text-lg rounded-xl shadow-md hover:bg-blue-700 transition-all duration-200"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl text-lg font-semibold transition cursor-pointer"
             >
               Enroll Now 🚀
             </button>
+
+            <hr className="my-6" />
+
+            <h3 className="text-lg font-semibold text-gray-800 mb-3">
+              This course includes:
+            </h3>
+
+            <ul className="space-y-2 text-gray-700">
+              <li>✔ Full lifetime access</li>
+              <li>✔ Certificate after completion</li>
+              <li>✔ Access on mobile & desktop</li>
+              <li>✔ Assignments & quizzes</li>
+              <li>✔ High-quality video lessons</li>
+            </ul>
           </div>
         </div>
+
       </div>
     </div>
   );
