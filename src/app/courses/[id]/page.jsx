@@ -35,7 +35,7 @@ const handleEnroll = async () => {
   }
 
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/checkout/create-session`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/checkout/create-session`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
