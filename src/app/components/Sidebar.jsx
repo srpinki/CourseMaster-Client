@@ -9,6 +9,7 @@ export default function Sidebar({ role, isCollapsed = false, mobileOpen = false,
   ];
 
   const adminLinks = [
+    { name: "Add Course", href: "/dashboard/admin/create" },
     { name: "Manage Courses", href: "/dashboard/admin/courses" },
     { name: "Manage Students", href: "/dashboard/admin/students" },
     { name: "Assignments", href: "/dashboard/admin/assignments" },

@@ -18,7 +18,7 @@ export default function LoginPage() {
     try {
       const res = await api.post("/auth/login", form);
       const { accessToken, user } = res.data;
-
+console.log("Data:" , res.data);
       // Save to Redux
       dispatch(setCredentials({ user, accessToken }));
 

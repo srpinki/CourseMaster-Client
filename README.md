@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# CourseMaster
 
-## Getting Started
+## 📚 Project Description
 
-First, run the development server:
+**CourseMaster** is a full-featured, production-ready E-learning platform built with the **MERN stack**.  
+It allows students to browse, enroll, and consume courses, while admins can manage courses, batches, and review assignments.  
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Key features include:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Student registration, login, and course enrollment
+- Secure JWT authentication and role-based access
+- Course catalog with search, filter, sort, and pagination
+- Video lectures, assignments, and quizzes
+- Admin dashboard with CRUD operations for courses and batches
+- Real-time progress tracking and certificate issuance
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+backend/.env
+MONGO_URI=your_mongodb_connection_string
+ACCESS_TOKEN_SECRET=your_jwt_access_secret
+REFRESH_TOKEN_SECRET=your_jwt_refresh_secret
+ADMIN_REG_KEY=admin123
+FRONTEND_URL=https://course-master-client.vercel.app
 
-## Learn More
+STRIPE_SECRET_KEY=sk_test.....       
+STRIPE_WEBHOOK_SECRET=whsec....
 
-To learn more about Next.js, take a look at the following resources:
+frontend/.env
+NEXT_PUBLIC_API_URL=https://course-master-server-two.vercel.app/api
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
